@@ -37,7 +37,7 @@ export function ProjectSummary({
   const { width } = useWindowSize();
   const isHydrated = useHydrated();
   const titleId = `${id}-title`;
-  const isMobile = width <= media.tablet;
+  const isMobile = isHydrated && width <= media.tablet;
   const svgOpacity = theme === 'light' ? 0.7 : 1;
   const indexText = index < 10 ? `0${index}` : index;
   const phoneSizes = `(max-width: ${media.tablet}px) 30vw, 20vw`;
