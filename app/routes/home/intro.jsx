@@ -10,7 +10,7 @@ import { useInterval, usePrevious, useScrollToHash } from '~/hooks';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { cssProps } from '~/utils/style';
 import config from '~/config.json';
-import { ClientOnly } from 'remix-utils/client-only'; // <-- ADD THIS IMPORT
+import { useMounted } from '~/hooks/useMounted';
 import styles from './intro.module.css';
 
 const DisplacementSphere = lazy(() =>
@@ -22,6 +22,7 @@ export function Intro({ id, sectionRef, scrollIndicatorHidden, ...rest }) {
   const { disciplines } = config;
   const [disciplineIndex, setDisciplineIndex] = useState(0);
   const prevTheme = usePrevious(theme);
+  const isMounted = useMounted();
   const introLabel = [disciplines.slice(0, -1).join(', '), disciplines.slice(-1)[0]].join(
     ', and '
   );
@@ -62,13 +63,11 @@ export function Intro({ id, sectionRef, scrollIndicatorHidden, ...rest }) {
       <Transition in key={theme} timeout={3000}>
         {({ visible, status }) => (
           <>
-            <ClientOnly fallback={null}>
-              {() => (
-                <Suspense fallback={null}>
-                  <DisplacementSphere />
-                </Suspense>
-              )}
-            </ClientOnly>
+            {isMounted && (
+              <Suspense fallback={null}>
+                <DisplacementSphere />
+              </Suspense>
+            )}
             <header className={styles.text}>
               <h1 className={styles.name} data-visible={visible} id={titleId}>
                 <DecoderText text={config.name} delay={500} />
