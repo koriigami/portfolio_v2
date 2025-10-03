@@ -8,13 +8,11 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "dev": "node ./scripts/dev.cjs && remix vite:dev",
-    "start": "wrangler pages dev ./build/client",
-    "postinstall": "node ./scripts/draco.cjs",
-    "deploy": "npm run build && wrangler pages deploy ./build/client --project-name portfolio",
+    "dev": "remix vite:dev",
+    "start": "remix-serve ./build/server/index.js",
+    "typecheck": "tsc",
     "dev:storybook": "storybook dev -p 6006",
-    "build:storybook": "storybook build",
-    "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main"
+    "build:storybook": "storybook build"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",
@@ -60,7 +58,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^4.0.0",
     "storybook": "^7.6.17",
-    "vite": "^5.1.0",
+    "vite": "^7.1.9",
     "vite-jsconfig-paths": "^2.0.1"
   },
   "engines": {
