@@ -10,7 +10,7 @@ import { Loader } from '~/components/loader';
 import { useWindowSize } from '~/hooks';
 import { Suspense, lazy, useState } from 'react';
 import { cssProps, media } from '~/utils/style';
-import { useHydrated } from '~/hooks/useHydrated';
+import { ClientOnly } from 'remix-utils/client-only';
 import katakana from './katakana.svg';
 import styles from './project-summary.module.css';
 
@@ -34,10 +34,8 @@ export function ProjectSummary({
   const [focused, setFocused] = useState(false);
   const [modelLoaded, setModelLoaded] = useState(false);
   const { theme } = useTheme();
-  const { width } = useWindowSize();
-  const isHydrated = useHydrated();
+  const { width } = useWindowSize(); // HOOK CALLED AT TOP LEVEL
   const titleId = `${id}-title`;
-  const isMobile = isHydrated && width <= media.tablet;
   const svgOpacity = theme === 'light' ? 0.7 : 1;
   const indexText = index < 10 ? `0${index}` : index;
   const phoneSizes = `(max-width: ${media.tablet}px) 30vw, 20vw`;
@@ -105,29 +103,34 @@ export function ProjectSummary({
           <>
             {renderKatakana('laptop', visible)}
             <div className={styles.model} data-device="laptop">
-              {!modelLoaded && (
-                <Loader center className={styles.loader} data-visible={visible} />
-              )}
-              {isHydrated && visible && (
-                <Suspense>
-                  <Model
-                    alt={model.alt}
-                    cameraPosition={{ x: 0, y: 0, z: 8 }}
-                    showDelay={700}
-                    onLoad={handleModelLoad}
-                    show={visible}
-                    models={[
-                      {
-                        ...deviceModels.laptop,
-                        texture: {
-                          ...model.textures[0],
-                          sizes: laptopSizes,
+              <ClientOnly
+                fallback={<Loader center className={styles.loader} data-visible={visible} />}
+              >
+                {() => (
+                  <Suspense
+                    fallback={
+                      <Loader center className={styles.loader} data-visible={visible} />
+                    }
+                  >
+                    <Model
+                      alt={model.alt}
+                      cameraPosition={{ x: 0, y: 0, z: 8 }}
+                      showDelay={700}
+                      onLoad={handleModelLoad}
+                      show={visible}
+                      models={[
+                        {
+                          ...deviceModels.laptop,
+                          texture: {
+                            ...model.textures[0],
+                            sizes: laptopSizes,
+                          },
                         },
-                      },
-                    ]}
-                  />
-                </Suspense>
-              )}
+                      ]}
+                    />
+                  </Suspense>
+                )}
+              </ClientOnly>
             </div>
           </>
         )}
@@ -135,38 +138,43 @@ export function ProjectSummary({
           <>
             {renderKatakana('phone', visible)}
             <div className={styles.model} data-device="phone">
-              {!modelLoaded && (
-                <Loader center className={styles.loader} data-visible={visible} />
-              )}
-              {isHydrated && visible && (
-                <Suspense>
-                  <Model
-                    alt={model.alt}
-                    cameraPosition={{ x: 0, y: 0, z: 11.5 }}
-                    showDelay={300}
-                    onLoad={handleModelLoad}
-                    show={visible}
-                    models={[
-                      {
-                        ...deviceModels.phone,
-                        position: { x: -0.6, y: 1.1, z: 0 },
-                        texture: {
-                          ...model.textures[0],
-                          sizes: phoneSizes,
+              <ClientOnly
+                fallback={<Loader center className={styles.loader} data-visible={visible} />}
+              >
+                {() => (
+                  <Suspense
+                    fallback={
+                      <Loader center className={styles.loader} data-visible={visible} />
+                    }
+                  >
+                    <Model
+                      alt={model.alt}
+                      cameraPosition={{ x: 0, y: 0, z: 11.5 }}
+                      showDelay={300}
+                      onLoad={handleModelLoad}
+                      show={visible}
+                      models={[
+                        {
+                          ...deviceModels.phone,
+                          position: { x: -0.6, y: 1.1, z: 0 },
+                          texture: {
+                            ...model.textures[0],
+                            sizes: phoneSizes,
+                          },
                         },
-                      },
-                      {
-                        ...deviceModels.phone,
-                        position: { x: 0.6, y: -0.5, z: 0.3 },
-                        texture: {
-                          ...model.textures[1],
-                          sizes: phoneSizes,
+                        {
+                          ...deviceModels.phone,
+                          position: { x: 0.6, y: -0.5, z: 0.3 },
+                          texture: {
+                            ...model.textures[1],
+                            sizes: phoneSizes,
+                          },
                         },
-                      },
-                    ]}
-                  />
-                </Suspense>
-              )}
+                      ]}
+                    />
+                  </Suspense>
+                )}
+              </ClientOnly>
             </div>
           </>
         )}
@@ -191,20 +199,33 @@ export function ProjectSummary({
       <div className={styles.content}>
         <Transition in={sectionVisible || focused}>
           {({ visible }) => (
-            <>
-              {!alternate && !isMobile && (
-                <>
-                  {renderDetails(visible)}
-                  {renderPreview(visible)}
-                </>
-              )}
-              {(alternate || isMobile) && (
-                <>
-                  {renderPreview(visible)}
-                  {renderDetails(visible)}
-                </>
-              )}
-            </>
+            <ClientOnly fallback={
+              <>
+                {renderDetails(visible)}
+                {renderPreview(visible)}
+              </>
+            }>
+              {() => {
+                // VALUE IS USED HERE, NOT THE HOOK ITSELF
+                const isMobile = width <= media.tablet;
+
+                if (!alternate && !isMobile) {
+                  return (
+                    <>
+                      {renderDetails(visible)}
+                      {renderPreview(visible)}
+                    </>
+                  );
+                }
+
+                return (
+                  <>
+                    {renderPreview(visible)}
+                    {renderDetails(visible)}
+                  </>
+                );
+              }}
+            </ClientOnly>
           )}
         </Transition>
       </div>

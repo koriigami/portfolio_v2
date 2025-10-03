@@ -10,7 +10,7 @@ import { useInterval, usePrevious, useScrollToHash } from '~/hooks';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { cssProps } from '~/utils/style';
 import config from '~/config.json';
-import { useHydrated } from '~/hooks/useHydrated';
+import { ClientOnly } from 'remix-utils/client-only'; // <-- ADD THIS IMPORT
 import styles from './intro.module.css';
 
 const DisplacementSphere = lazy(() =>
@@ -28,7 +28,6 @@ export function Intro({ id, sectionRef, scrollIndicatorHidden, ...rest }) {
   const currentDiscipline = disciplines.find((item, index) => index === disciplineIndex);
   const titleId = `${id}-title`;
   const scrollToHash = useScrollToHash();
-  const isHydrated = useHydrated();
 
   useInterval(
     () => {
@@ -63,11 +62,13 @@ export function Intro({ id, sectionRef, scrollIndicatorHidden, ...rest }) {
       <Transition in key={theme} timeout={3000}>
         {({ visible, status }) => (
           <>
-            {isHydrated && (
-              <Suspense>
-                <DisplacementSphere />
-              </Suspense>
-            )}
+            <ClientOnly fallback={null}>
+              {() => (
+                <Suspense fallback={null}>
+                  <DisplacementSphere />
+                </Suspense>
+              )}
+            </ClientOnly>
             <header className={styles.text}>
               <h1 className={styles.name} data-visible={visible} id={titleId}>
                 <DecoderText text={config.name} delay={500} />
