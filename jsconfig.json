@@ -5,5 +5,5 @@
       "~/*": ["./app/*"]
     }
   },
-  "include": ["app", ".storybook/story-container.jsx", "vercel.js", "server.js"]
+  "include": ["app", ".storybook/story-container.jsx"]
 }
