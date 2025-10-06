@@ -3,7 +3,7 @@
   "homepage": "https://hamishw.com",
   "description": "Portfolio site for Hamish Williams",
   "repository": "https://github.com/HamishMW/portfolio.git",
-  "author": "Hamish Williams",
+  "author": "Ketan Damle",
   "sideEffects": false,
   "type": "module",
   "scripts": {
