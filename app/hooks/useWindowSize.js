@@ -3,12 +3,9 @@ import { useState, useEffect } from 'react';
 const isBrowser = typeof window !== 'undefined';
 
 function getSize() {
-  if (!isBrowser) {
-    return { width: 1280, height: 800 }; // Default size for server-side rendering
-  }
   return {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: isBrowser ? window.innerWidth : 1280, // Default width for SSR
+    height: isBrowser ? window.innerHeight : 800, // Default height for SSR
   };
 }
 
@@ -17,7 +14,7 @@ export function useWindowSize() {
 
   useEffect(() => {
     if (!isBrowser) {
-      return; // Don't run this effect on the server
+      return; // Don't add event listener on the server
     }
 
     function handleResize() {
